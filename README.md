@@ -18,8 +18,11 @@
  +Sampling technique includes:
     
     a. Population proportion 
+    
     b. Population total
+    
     c. Population mean
+    
     
     
  
