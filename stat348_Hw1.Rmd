@@ -1,0 +1,282 @@
+---
+title: "Stat348_Hw1"
+author: "Jenny Ly"
+date: "9/21/2022"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+# Question 1
+
+N = 6 , n = 3 
+
+```{r call library}
+library(magrittr)
+library(readxl)
+library(here)
+```
+
+### Read data from excel file
+
+I already do the calculation in the excel file, so I only import those data in this Rmarkdown file 
+
+In the excel file:
+
+  + E: expected mean value for each sample
+  + V: expected variance value for each sample
+  
+```{r}
+data_1 <- read_excel(here("data_q1.xlsx"))
+head(data_1)
+data_2 <- read_excel(here("data_2_q1.xlsx"))
+head(data_2)
+```
+
+```{r Input Data}
+data <- c(98,102,154,133,190,175)
+y_u <- data %>% mean
+```
+
+a. $\bar{y}_u=142$
+
+b. Plan 1:
+  
+  + $E(\bar{y})=142$
+  + $V(\bar{y})=18.94$
+  + $Bias(\bar{y})=0$
+  + $MSE(\bar{y})=18.94$
+  
+   Plan 2:
+  
+  + $E(\bar{y})=142.5$
+  + $V(\bar{y})=19.36$
+  + $Bias(\bar{y})=0.5$
+  + $MSE(\bar{y})=19.62$
+
+
+**c. Comparing result from 2 plans, bias value in plan 2 is bigger than plan 1, and MSE value in plan 1 smaller than plan 2. Therefore, plan 1 is preferred to used than plan 2.**
+
+# Question 2
+
+a. $p=0.20$ 20% respondents 
+
+   $n=745$ number of respondents 
+
+   $\alpha=0.05$ 95% CI
+
+   $N=2700$ number of whole population 
+
+   *CI population proportion:*
+   $\hat{p}\pm t_{\frac{\alpha}{2},n-1 }\hat{SE}(\hat{p})$
+
+   $=0.2 \pm t_{0.025,744}\sqrt{(1-\frac{795}{2700}}) \frac{(0.2)(0.8)}{744}$
+
+   $=0.2 \pm 1.96 *0.01248$
+   $=0.2 \pm 0.024458$
+
+**Therefore, 95% CI for sample proportion lies between (0.1755,0.2245)**
+
+  *CI for the total number of nurses in the country:*
+
+   $CI = 2700*(0.1755, 0.2245)$
+   $=(477, 606)$
+
+**95% CI for totol number of nurses in the country lies between (474,606)**
+
+**b. The assumption I make for the above analysis is the proportion of nonrepondents who also have experienced bullying equal with the ones ho responded to survey.**
+
+# Quesion 3
+
+a. The possible causes of selection bias are randomization of this selection, the target of population. The sample is done only via online directory, other people in other directories are excluded. Also the occupations only limited in academic, government and industry. Therefore, the sample is ot covering complete target population. 
+
+b. number of female, $n=150$
+  number of population, $N=864$
+
+   $\hat{p}=\frac{46}{150}=0.3067$
+
+   95% CI proportion of members are female lies between:
+
+   $CI=0.3067 \pm 1.96 \sqrt{(1-\frac{150}{864}}) \frac{(0.3067)(0.6933)}{149}$
+   $=0.3067 \pm 0.0673$
+   $=(0.239, 0.374)$
+
+c. 95% CI total number of SSC members are female lies between:
+   $CI=864*(0.239,0.374)$
+   $=(207, 323)$
+
+# Question 4
+
+*Import Data*
+```{r}
+data <- read.csv(here("agsrs.csv"))
+head(data)
+```
+
+```{r  Estimate Mean Function ,echo=FALSE}
+# 
+# sdata -- a vector of sampling survey data
+# N -- population size 
+# to find total, multiply N to the estimate returned by this function
+srs_mean_est <- function (sdata, N)
+{
+	n <- length (sdata)
+	ybar <- mean (sdata)
+	se.ybar <- sqrt((1 - n / N)) * sd (sdata) / sqrt(n)  
+	mem <- qt (0.975, df = n - 1) * se.ybar
+	c (ybar = ybar, se = se.ybar, ci.low = ybar - mem, ci.upp = ybar + mem)
+}
+```
+
+### Estimating the mean of acre87
+
+```{r}
+acres87 <- data$acres87
+mean_acres_87 <-srs_mean_est (data[,"acres87"], N = 3078)
+```
+
+**95% CI for the mean of acreages for farming in 1987 lies between (264,732.96 ,  339,174.49)**
+
+
+### Estimating mean farm92
+
+```{r}
+farm92 <- data$farms92
+srs_mean_est (data[,"farms92"], N = 3078)
+```
+**95% CI for the mean of farming in 1992 lies between (555.64259, 642.47741)**
+
+### Estimating the total number of farms with 1000 acres or more, 1992
+```{r}
+large92 <- data$largef92
+srs_mean_est(data[,"largef92"],N=3078)
+```
+**95% CI for the number of farms with 1000 acres or more in 1992 lies between (48.74, 64.45)**
+
+### Estimating the total number of farms with 9 acres or fewer, 1992
+```{r}
+small92 <- data$smallf92
+srs_mean_est(data[,"smallf92"],N=3078)
+```
+
+**95% CI for the number of farms with 9 acres or fewer in 1992 lies between (39.65, 53.99)**
+
+### Plot for estimate population mean
+
+```{r}
+# look at the distribution of sample mean
+
+#Numeber of acres devoted to farm in 1987
+hist (data$acres87,main = "Population Distribution of acre87")
+
+#Number of farms, 1992
+hist(data$farms92, main = "Population Distribution of number of farm 1992")
+
+#Number of farm with 1000 acres or more, 1992
+hist(data$largef92, main = "Farms owned 1000acres or more")
+
+#Number of farm with lower 9acres, 1992
+hist(data$smallf92, main = "Farms owned 9acres or fewer ")
+## over haft population in survey showing farms had 9 or fewer acres in 1992
+```
+
+# Question 5
+
+### Import and read data set
+
+```{r}
+baseball <- read.csv(here("baseball.csv"))
+head(baseball)
+dim(baseball)
+```
+Data set population: N = 796
+
+we want to take an SRS with n = 150
+
+```{r}
+#Take an SRS 
+N <- 796 # origin data set population
+n <- 150 # refer sample size 
+set.seed(123) # make result reproducible 
+
+#Sample with randomization
+sample(1:N,n) 
+sub_set <- baseball[sample(1:N,n),]
+```
+
+I generate the sample random sampling of baseball data set by using function sample() with the argument is random from 1 to N (origin baseball population)
+limited in size equal to n = 150 observations.
+
+set.seed() function is used in order to make result reproducible 
+
+### b. Calculate salary from SRS
+
+```{r}
+library(SciViews)
+par (mfrow= c(1,2))
+
+# log of variable "salary" in the SRS sample 
+logsal <- ln(sub_set$X6200000)
+
+#histrogram plotting for Log salary
+m <- mean(logsal)
+sd <- sqrt(var(logsal))
+hist(logsal, main = "Distribution of Log Salary 
+of babeball player from SRS in 2004",
+    xlab = "log salary")
+
+#histogram plotting for Salary(Not log)
+hist(sub_set$X6200000, main = "Distribution of Salary
+        of baseball players from SRS in 2004",
+     xlab = "salary")
+
+#Summary of logsal
+summary(logsal)
+#summary of salary
+summary(sub_set$X6200000)
+```
+**Salary histogram are not normal distribution as most of data falls in left tail.Also the mean and median are largely difference**
+
+**Log Salary is quite normal distribution as the data falls in two ranges around mean. The median and mean are approximately close **
+
+### c. 95% CI mean of logsal
+
+```{r}
+# 95% CI for logsal data set 
+srs_mean_est(logsal,N = 796)
+```
+
+**95% CI for mean of logsal lies between (13.768 , 14.133)**
+
+### d. proportion of players in data set who are pitchers 
+```{r}
+#return data set with logistic value that contain "P"
+index_pitcher <-sub_set$CF == "P"
+
+#data set with only "P"
+pitcher <- sub_set$CF[index_pitcher]
+
+#return 95% CI for pitcher data set 
+srs_mean_est(as.numeric(index_pitcher),N=796)
+```
+
+**95% CI proportion of players in data set who are pitchers is between (0.394,0.539)**
+
+### e. True Value of Population
+
+```{r}
+#mean of log salary for population
+mean__salary_true <- mean(ln(baseball$X6200000))
+
+#true mean of proportion who are pitcher 
+mean_pitcher_true <- mean(baseball$CF == "P")
+```
+
+Names |True value  |   Sample Value
+------|------------|----------------
+salary|  13.925    |    (13.768,14.133)
+pitchers|  0.472   |   (0.394,0.539)
+
+
+**Both values in the SRS 95% CI contain the true values for population.**
+**I can conclude that the sample with size 150 can be significantly represent the whole population with size 796 in terms of 95% confident interval**
